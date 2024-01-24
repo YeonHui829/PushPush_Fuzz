@@ -1,0 +1,385 @@
+        -:    0:Source:move.c
+        -:    0:Graph:./move.gcno
+        -:    0:Data:./move.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:
+        -:    2:#include <stdio.h>
+        -:    3:#include <string.h>
+        -:    4:#include <stdlib.h>
+        -:    5:#include <time.h>
+        -:    6:#include <unistd.h> 
+        -:    7:#include <arpa/inet.h>
+        -:    8:#include <sys/socket.h>
+        -:    9:#include <pthread.h>
+        -:   10:#include <errno.h>
+        -:   11:#include <sys/stat.h>
+        -:   12:#include <fcntl.h>
+        -:   13:#include "../cJSON.h"
+        -:   14:
+        -:   15:#define BUF_SIZE 256
+        -:   16:#define MAX_USER 2
+        -:   17:#define NAME_SIZE 16
+        -:   18:#define PATH_LENGTH 256
+        -:   19:#define queue_size 20
+        -:   20:
+        -:   21:typedef struct location{
+        -:   22:    int x;
+        -:   23:    int y;
+        -:   24:} location_t;
+        -:   25:
+        -:   26:typedef struct user{
+        -:   27:    char name[NAME_SIZE];
+        -:   28:    int score;
+        -:   29:    location_t base_loc;
+        -:   30:    location_t user_loc;
+        -:   31:}user_t;
+        -:   32:
+        -:   33:typedef struct object_data{
+        -:   34:    int map_width;
+        -:   35:	int map_height;
+        -:   36:    int timeout;
+        -:   37:    int max_user;
+        -:   38:    struct user * users;
+        -:   39:    location_t * item_locations;
+        -:   40:    location_t * block_locations;
+        -:   41:}object_data_t;
+        -:   42:
+        -:   43:enum entity {
+        -:   44:	EMPTY = 0,
+        -:   45:	BLOCK = -1,
+        -:   46:	ITEM = -9, //item will be -10 ~ -110
+        -:   47:	USER = 1, //user wil be 1 ~ 3
+        -:   48:	BASE = 9, //base will be 10 ~ 30
+        -:   49:};
+        -:   50:
+        -:   51:enum spans {
+        -:   52:	UP, 
+        -:   53:	DOWN, 
+        -:   54:	LEFT, 
+        -:   55:	RIGHT
+        -:   56:};
+        -:   57:
+        -:   58:int ** map; // cell
+        -:   59:object_data_t Model; //model
+        -:   60:char msg_info[BUF_SIZE] = "";
+        -:   61:char buf[BUF_SIZE] = "";
+        -:   62:int sock;
+        -:   63:int my_id;
+        -:   64:int num_item, num_block;
+        -:   65:int current_num_item;
+        -:   66:
+        -:   67:pthread_mutex_t mutx;
+        -:   68:pthread_cond_t cond;
+        -:   69:int event_arry[queue_size];
+        -:   70:int rear = 0;
+        -:   71:int front = 0;
+        -:   72:
+        -:   73:int usr_cnt = 0; //num of connected user
+        -:   74:int game_start = 0;
+        -:   75:int max_user;
+        -:   76:char ** user_name;
+        -:   77:int json_size;
+        -:   78:char * json_serialize;
+        -:   79:
+        -:   80:int clnt_cnt = 0;
+        -:   81:int clnt_socks[MAX_USER];
+        -:   82:pthread_mutex_t mutx;
+        -:   83:
+        -:   84:
+function loadJson called 1 returned 100% blocks executed 62%
+        1:   85:int loadJson(char * filepath) 
+        -:   86:{
+        -:   87:	// char filepath[PATH_LENGTH];
+        -:   88:	// fgets(filepath, PATH_LENGTH-1, stdin);
+        -:   89:	// filepath[strlen(filepath)-1]=0;
+        1:   90:	FILE *file = fopen(filepath,"r");
+call    0 returned 100%
+        1:   91:	if(file == NULL)
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+        -:   92:	{
+    #####:   93:		fprintf(stderr,"ERROR: open file");
+call    0 never executed
+    #####:   94:		return 1;
+        -:   95:	}
+        -:   96:	struct stat st;
+        1:   97:	if(stat(filepath, &st) == -1)
+call    0 returned 100%
+branch  1 taken 0% (fallthrough)
+branch  2 taken 100%
+        -:   98:	{
+    #####:   99:  		fprintf(stderr,"ERROR: stat()\n");
+call    0 never executed
+    #####:  100:  		return 1;
+        -:  101:	}
+        1:  102:	int size = st.st_size;
+        -:  103:
+        1:  104:	char* jsonfile = (char*)malloc(size+1);
+        1:  105:	if(jsonfile 	== NULL)
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+        -:  106:	{
+    #####:  107:		fprintf(stderr,"ERROR: memory allocation\n");
+call    0 never executed
+    #####:  108:		return 1;
+        -:  109:	}
+        -:  110:
+        1:  111:	int read_size = fread(jsonfile, 1, size, file);
+call    0 returned 100%
+        1:  112:	if(read_size != size)
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+        -:  113:	{
+    #####:  114:		fprintf(stderr, "ERROR: read file\n");
+call    0 never executed
+    #####:  115:		return 1;
+        -:  116:	}
+        -:  117:
+        1:  118:	fclose(file);
+call    0 returned 100%
+        1:  119:	jsonfile[size] = '\0';
+        -:  120:	
+        1:  121:	cJSON* root = cJSON_Parse(jsonfile);
+call    0 returned 100%
+        1:  122:	if (root == NULL) 
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+        -:  123:	{
+    #####:  124:		printf("JSON 파싱 오류: %s\n", cJSON_GetErrorPtr());
+call    0 never executed
+call    1 never executed
+    #####:  125:      	return 1;
+        -:  126:	}
+        -:  127:
+        1:  128:	cJSON* num_user = cJSON_GetObjectItem(root, "max_user");
+call    0 returned 100%
+        1:  129:	max_user = num_user->valueint;
+        1:  130:	user_name = (char**)malloc(sizeof(char*) * max_user);
+        3:  131:	for(int i=0; i< max_user; i++)
+branch  0 taken 67%
+branch  1 taken 33% (fallthrough)
+        -:  132:	{
+        2:  133:		user_name[i] = (char*)malloc(sizeof(char) * NAME_SIZE);
+        -:  134:	}
+        -:  135:
+        1:  136:	json_serialize = cJSON_Print(root);
+call    0 returned 100%
+        1:  137:	json_size = strlen(json_serialize);
+        -:  138:	
+        1:  139:	free(root);
+        1:  140:	free(jsonfile);
+        1:  141:	return 0;
+        -:  142:}
+        -:  143:
+function parseJson called 1 returned 100% blocks executed 92%
+        1:  144:int parseJson(char * jsonfile) {
+        -:  145:
+        -:  146:    cJSON* root;
+        1:  147:	root = cJSON_Parse(jsonfile);
+call    0 returned 100%
+        1:  148:	if (root == NULL) {
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+    #####:  149:		printf("JSON parsing error: %s\n", cJSON_GetErrorPtr());
+call    0 never executed
+call    1 never executed
+    #####:  150:        return 1;
+        -:  151:	}
+        -:  152:        
+        1:  153:	cJSON* timeout = cJSON_GetObjectItem(root, "timeout");
+call    0 returned 100%
+        1:  154:	Model.timeout = timeout->valueint;
+        1:  155:	cJSON* max_user = cJSON_GetObjectItem(root, "max_user");
+call    0 returned 100%
+        1:  156:	Model.max_user = max_user->valueint;
+        -:  157:
+        1:  158:	cJSON* map = cJSON_GetObjectItem(root, "map");
+call    0 returned 100%
+        1:  159:	cJSON* map_width = cJSON_GetObjectItem(map, "map_width");
+call    0 returned 100%
+        1:  160:	Model.map_width = map_width->valueint;	
+        1:  161:	cJSON* map_height = cJSON_GetObjectItem(map, "map_height");
+call    0 returned 100%
+        1:  162:	Model.map_height = map_height->valueint;
+        -:  163:
+        1:  164:	cJSON* user = cJSON_GetObjectItem(root, "user");
+call    0 returned 100%
+        1:  165:	Model.users = (struct user *)malloc(sizeof(struct user) * Model.max_user);
+        3:  166:	for(int i = 0; i < Model.max_user; i++){
+branch  0 taken 67%
+branch  1 taken 33% (fallthrough)
+        2:  167:		memset(Model.users[i].name, 0, sizeof(NAME_SIZE));
+        2:  168:		Model.users[i].score = 0;
+        2:  169:		cJSON* user_array = cJSON_GetArrayItem(user,i);
+call    0 returned 100%
+        2:  170:	    cJSON* base = cJSON_GetObjectItem(user_array,"base"); 
+call    0 returned 100%
+        2:  171:		cJSON* base_x = cJSON_GetArrayItem(base, 0);
+call    0 returned 100%
+        2:  172:		cJSON* base_y = cJSON_GetArrayItem(base, 1);
+call    0 returned 100%
+        2:  173:		cJSON* user_location = cJSON_GetObjectItem(user_array,"location"); 
+call    0 returned 100%
+        2:  174:		cJSON* user_x = cJSON_GetArrayItem(user_location, 0);
+call    0 returned 100%
+        2:  175:		cJSON* user_y = cJSON_GetArrayItem(user_location, 1);
+call    0 returned 100%
+        2:  176:		Model.users[i].user_loc.x = user_x->valueint;
+        2:  177:		Model.users[i].user_loc.y = user_y->valueint;
+        2:  178:		Model.users[i].base_loc.x = base_x->valueint;
+        2:  179:		Model.users[i].base_loc.y = base_y->valueint;
+        -:  180:	#ifdef DEBUG
+        -:  181:		printf("name: %s\n",Model.users[i].name);
+        -:  182:		printf("base x: %d\n",Model.users[i].base_loc.x);
+        -:  183:		printf("base y: %d\n",Model.users[i].base_loc.y);
+        -:  184:	#endif
+        -:  185:	}
+        -:  186:	
+        1:  187:	cJSON * item = cJSON_GetObjectItem(root, "item_location");
+call    0 returned 100%
+        1:  188:	num_item = cJSON_GetArraySize(item);
+call    0 returned 100%
+        1:  189:	current_num_item = num_item;
+        1:  190:	Model.item_locations = (struct location *)malloc(sizeof(struct location) * num_item); 
+        7:  191:	for(int i = 0; i < num_item; i++){
+branch  0 taken 86%
+branch  1 taken 14% (fallthrough)
+        6:  192:		cJSON* item_array = cJSON_GetArrayItem(item,i);
+call    0 returned 100%
+        6:  193:		cJSON* item_x = cJSON_GetArrayItem(item_array, 0);
+call    0 returned 100%
+        6:  194:		cJSON* item_y = cJSON_GetArrayItem(item_array, 1);
+call    0 returned 100%
+        6:  195:		Model.item_locations[i].x = item_x->valueint;
+        6:  196:		Model.item_locations[i].y = item_y->valueint;
+        -:  197:	#ifdef DEBUG
+        -:  198:		printf("item x: %d\n",Model.item_locations[i].x);
+        -:  199:		printf("item y: %d\n",Model.item_locations[i].y);
+        -:  200:		#endif
+        -:  201:	}	
+        -:  202:
+        1:  203:	cJSON * block = cJSON_GetObjectItem(root, "block_location");
+call    0 returned 100%
+        1:  204:	num_block = cJSON_GetArraySize(block);
+call    0 returned 100%
+        1:  205:	Model.block_locations = (struct location *)malloc(sizeof(struct location) * num_block); 
+        6:  206:	for(int i = 0; i < num_block; i++){
+branch  0 taken 83%
+branch  1 taken 17% (fallthrough)
+        5:  207:		cJSON* block_array = cJSON_GetArrayItem(block,i);
+call    0 returned 100%
+        5:  208:		cJSON* block_x = cJSON_GetArrayItem(block_array, 0);
+call    0 returned 100%
+        5:  209:		cJSON* block_y = cJSON_GetArrayItem(block_array, 1);
+call    0 returned 100%
+        5:  210:		Model.block_locations[i].x = block_x->valueint;
+        5:  211:		Model.block_locations[i].y = block_y->valueint;
+        -:  212:	#ifdef DEBUG
+        -:  213:		printf("block x: %d\n",Model.block_locations[i].x);
+        -:  214:		printf("block y: %d\n",Model.block_locations[i].y);
+        -:  215:	#endif
+        -:  216:	}	
+        -:  217:		
+        1:  218:	return 0;
+        -:  219:}
+        -:  220:
+function move called 1 returned 100% blocks executed 57%
+        1:  221:int move(int cmd, int movement){
+        1:  222:	fprintf(stderr, "cmd : %d\n", cmd);
+call    0 returned 100%
+        1:  223:	int user_idx = cmd/Model.max_user;
+        1:  224:	int span = cmd%4;	
+        -:  225:	int curr_x, curr_y, target_x, target_y, item_target_x, item_target_y;
+        1:  226:	curr_x = target_x = item_target_x = Model.users[user_idx].user_loc.x;
+        1:  227:	curr_y = target_y = item_target_y = Model.users[user_idx].user_loc.y;
+        1:  228:	switch(span){
+branch  0 taken 0%
+branch  1 taken 0%
+branch  2 taken 0%
+branch  3 taken 100%
+branch  4 taken 0%
+    #####:  229:		case UP:		
+    #####:  230:			target_y = curr_y - 1;
+    #####:  231:			item_target_y = target_y - 1;
+    #####:  232:			break;	
+    #####:  233:		case DOWN:
+    #####:  234:			target_y = curr_y + 1;
+    #####:  235:			item_target_y = target_y + 1;
+    #####:  236:			break;	
+    #####:  237:		case LEFT:
+    #####:  238:			target_x = curr_x - 1;
+    #####:  239:			item_target_x = target_x - 1;
+    #####:  240:			break;	
+        1:  241:		case RIGHT:
+        1:  242:			fprintf(stderr, "right\n");
+call    0 returned 100%
+        1:  243:			target_x = curr_x + 1;
+        1:  244:			item_target_x = target_x + 1;
+        1:  245:			break;	
+        -:  246:	}
+        -:  247:	
+        1:  248:	if(movement < ITEM){ //valid and item-empty
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+        1:  249:		fprintf(stderr,"move for item %d!!!\n", movement);	
+call    0 returned 100%
+        -:  250:		// update_model(movement, item_target_x, item_target_y);	
+    #####:  251:	}else if(movement > (0-ITEM)){ //valid and item-scoreup
+branch  0 never executed
+branch  1 never executed
+    #####:  252:		fprintf(stderr,"move for success %d!!!\n", movement);	
+call    0 never executed
+        -:  253:		// update_model((0-movement), -1, -1);	
+        -:  254:		// score_up(user_idx);
+    #####:  255:		current_num_item--;
+        -:  256:	}
+        -:  257:	// update_model(user_idx+1, target_x,target_y);	
+        1:  258:	fprintf(stderr,"move finish!\n");
+call    0 returned 100%
+        1:  259:}
+        -:  260:
+function main called 1 returned 100% blocks executed 87%
+        1:  261:int main(int argc, char ** argv){
+        -:  262:    /*
+        -:  263:    1. Model을 정의
+        -:  264:    */
+        -:  265:    if(argc != 2){
+        -:  266:        // return 1;
+        -:  267:    }
+        -:  268:    
+        1:  269:    char * json_input = "map1.json";
+        1:  270:	loadJson(json_input);
+call    0 returned 100%
+        1:  271:    parseJson(json_serialize);
+call    0 returned 100%
+        -:  272:
+        -:  273:    int fd;
+        1:  274:    if((fd = open(argv[1], O_RDONLY)) < 0){
+call    0 returned 100%
+branch  1 taken 0% (fallthrough)
+branch  2 taken 100%
+    #####:  275:        fprintf(stderr, "%s open error\n",argv[1]);
+call    0 never executed
+    #####:  276:        return 1;
+        -:  277:    }
+        -:  278:    char cmd, movement;
+        -:  279:	
+        1:  280:    read(fd, (void *)&cmd , 1);
+call    0 returned 100%
+        1:  281:    fprintf(stderr, "cmd :%c\n", cmd);
+call    0 returned 100%
+        1:  282:	int a = cmd - '0';
+        -:  283:
+        1:  284:	read(fd, (void *)&cmd , 1);
+call    0 returned 100%
+        1:  285:    fprintf(stderr, "movement :%c\n", cmd);
+call    0 returned 100%
+        1:  286:	int b = movement - '0';
+        -:  287:
+        1:  288:	move(a,b);
+call    0 returned 100%
+        -:  289:
+        -:  290:
+        1:  291:    return 0;
+        -:  292:}

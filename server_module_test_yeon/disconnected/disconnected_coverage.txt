@@ -1,0 +1,7 @@
+File 'disconnected.c'
+Lines executed:79.59% of 49
+Branches executed:100.00% of 22
+Taken at least once:72.73% of 22
+Calls executed:68.00% of 25
+Creating 'disconnected.c.gcov'
+

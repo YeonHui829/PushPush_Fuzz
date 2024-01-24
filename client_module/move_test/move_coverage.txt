@@ -1,0 +1,7 @@
+File 'move.c'
+Lines executed:79.07% of 129
+Branches executed:100.00% of 31
+Taken at least once:58.06% of 31
+Calls executed:81.13% of 53
+Creating 'move.c.gcov'
+

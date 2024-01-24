@@ -1,0 +1,7 @@
+File 'handle_clnt.c'
+Lines executed:91.80% of 61
+Branches executed:100.00% of 20
+Taken at least once:75.00% of 20
+Calls executed:85.71% of 35
+Creating 'handle_clnt.c.gcov'
+
