@@ -42,7 +42,13 @@ typedef struct object_data{
     location_t * block_locations;
 }object_data_t;
 
-
+enum entity {
+	EMPTY = 0,
+	BLOCK = -1,
+	ITEM = -9, //item will be -10 ~ -110
+	USER = 1, //user wil be 1 ~ 3
+	BASE = 9, //base will be 10 ~ 30
+};
 
 enum spans {
 	UP, 
@@ -101,11 +107,11 @@ void score_up(int user_idx);
 gboolean handle_cmd(gpointer user_data) ;
 
 //for networking
-int recv_bytes(int sock_fd, void * buf, size_t len);
-int send_bytes(int sock_fd, void * buf, size_t len);
+int read_bytes(int sock_fd, void * buf, size_t len);
+int write_bytes(int sock_fd, void * buf, size_t len);
 void handle_timeout(int signum);
 int parseJson(char * jsonfile);
-void *recv_msg(void * arg);
+void *read_msg(void * arg);
 void cannot_enter();
 
 
@@ -142,7 +148,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	int game_started;
-	if (recv_bytes(sock, (void*)&game_started, sizeof(int)) == -1) 
+	if (read_bytes(sock, (void*)&game_started, sizeof(int)) == -1) 
     	return 1;
 
 	if(game_started){
@@ -161,25 +167,25 @@ int main(int argc, char *argv[]) {
 	}
 	
 	int name_size = strlen(buf);
-	if(send_bytes(sock, (void *)&name_size, sizeof(int)) == -1)
+	if(write_bytes(sock, (void *)&name_size, sizeof(int)) == -1)
 		return 1;
 
-	if(send_bytes(sock, buf, strlen(buf)) == -1)
+	if(write_bytes(sock, buf, strlen(buf)) == -1)
 		return 1;
 
-    //recv my id
-	if (recv_bytes(sock, (void*)&my_id, sizeof(int)) == -1) 
+    //read my id
+	if (read_bytes(sock, (void*)&my_id, sizeof(int)) == -1) 
     	return 1;
 		
 	fprintf(stderr, "id : %d\n", my_id);
 	
-    // recv json file
+    // read json file
     int json_size;
-    if (recv_bytes(sock, (void*)&(json_size), sizeof(int)) == -1)
+    if (read_bytes(sock, (void*)&(json_size), sizeof(int)) == -1)
 		return 1;
 
     char * json_format = malloc(sizeof(char) * json_size);
-    if (recv_bytes(sock, json_format, json_size) == -1)
+    if (read_bytes(sock, json_format, json_size) == -1)
 		return 1;
 
 	if(parseJson(json_format))
@@ -189,10 +195,10 @@ int main(int argc, char *argv[]) {
 	// test hardcoding
 	for (int i = 0; i < Model.max_user; i++) {
 		int name_size;
-		if (recv_bytes(sock, (void*)&(name_size), sizeof(name_size)) == -1)
+		if (read_bytes(sock, (void*)&(name_size), sizeof(name_size)) == -1)
 			return 1;
 	
-		if (recv_bytes(sock, (void*)(Model.users[i].name), name_size) == -1)
+		if (read_bytes(sock, (void*)(Model.users[i].name), name_size) == -1)
 			return 1;
 		Model.users[i].name[name_size] = 0x0;
 		printf("id : %d name : %s\n",i,Model.users[i].name);
@@ -220,7 +226,7 @@ int main(int argc, char *argv[]) {
 
 	alarm(Model.timeout);
 
-	pthread_create(&rcv_thread, NULL, recv_msg, (void*)&sock);
+	pthread_create(&rcv_thread, NULL, read_msg, (void*)&sock);
 	g_timeout_add(50,handle_cmd, NULL);
 	
   	gtk_main(); //enter the GTK main loop
@@ -547,9 +553,11 @@ gboolean on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
             greeting = "right key pressed...";
 			cmd += 3;
             break;
+	default:
+		return TRUE;    
     }
 	fprintf(stderr,"keyboard :%d player id : %d, cmd : %d\n", event->keyval, my_id ,cmd);
-	send_bytes(sock, (void*)&cmd, sizeof(int));
+	write_bytes(sock, (void*)&cmd, sizeof(int));
 
 	return TRUE;
 }
@@ -641,8 +649,8 @@ int parseJson(char * jsonfile) {
 	root = cJSON_Parse(jsonfile);
 	if (root == NULL) {
 		printf("JSON parsing error: %s\n", cJSON_GetErrorPtr());
-        return 1;
-	}
+        	return 1;
+    	}
         
 	cJSON* timeout = cJSON_GetObjectItem(root, "timeout");
 	Model.timeout = timeout->valueint;
@@ -716,59 +724,58 @@ void handle_timeout(int signum) {
     // 이 함수가 호출되면 10초가 경과했음을 의미
 	int game_over = Model.max_user*4;
 
-	send_bytes(sock,(void *)&game_over,sizeof(game_over));
+	write_bytes(sock,(void *)&game_over,sizeof(game_over));
     //gameover 신호 보내기 
 	gameover();
 }
-
-void * recv_msg(void * arg)   // read thread main
+void * read_msg(void * arg)   // read thread main
 {
 	int sock = *((int*)arg);
-	int recv_cmd;
+	int read_cmd;
 
 	//now enter new move 
 	while(1){
-		if(recv_bytes(sock, (void *)&recv_cmd, sizeof(recv_cmd)) == -1)
+		if(read_bytes(sock, (void *)&read_cmd, sizeof(read_cmd)) == -1)
 			return (void*)-1;
 
-        fprintf(stderr, "From Server : %d\n", recv_cmd);
+        fprintf(stderr, "From Server : %d\n", read_cmd);
 
 		pthread_mutex_lock(&mutx);
 		while((rear+1)%queue_size == front)
 			pthread_cond_wait(&cond, &mutx);
 		rear = (rear + 1) % queue_size;
-		event_arry[rear] = recv_cmd;
+		event_arry[rear] = read_cmd;
 		pthread_cond_signal(&cond);
   		pthread_mutex_unlock(&mutx);
 	}
 	return NULL;
 }
 
-int recv_bytes(int sock_fd, void * buf, size_t len){
+int read_bytes(int sock_fd, void * buf, size_t len){
     char * p = (char *)buf;
     size_t acc = 0;
 
     while(acc < len)
     {
-        size_t recved;
-        recved = recv(sock_fd, p, len - acc, 0);
-        if(recved  == -1 || recved == 0){
+        size_t readed;
+        readed = read(sock_fd, p, len - acc);
+        if(readed  == -1 || readed == 0){
             return -1;
         }
-        p+= recved ;
-        acc += recved ;
+        p+= readed ;
+        acc += readed ;
     }
     return 0;
 }
 
-int send_bytes(int sock_fd, void * buf, size_t len){
+int write_bytes(int sock_fd, void * buf, size_t len){
     char * p = (char *) buf;
     size_t acc = 0;
 
     while(acc < len){
         size_t sent;
-        sent = send(sock_fd, p, len - acc, 0);
-        if(sent == -1 || sent == 0){
+        sent = write(sock_fd, p, len - acc);
+        if(sent == -1){
             return -1;
         }
 
