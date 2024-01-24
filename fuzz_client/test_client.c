@@ -109,6 +109,7 @@ void *recv_msg(void * arg);
 void cannot_enter();
 
 
+#ifdef MAIN
 //this is MAIN
 int main(int argc, char *argv[]) {
 
@@ -232,6 +233,7 @@ int main(int argc, char *argv[]) {
 
  	return 0;
 }
+#endif
 
 
 //get pixbuf(for load image) from filename
