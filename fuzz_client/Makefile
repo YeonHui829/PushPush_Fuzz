@@ -37,5 +37,6 @@ client_path = ./test_client.c
 # 	$(CC) $(CVG) $^ -lpthread $(LIBS) -o client
 
 clean:
-	rm client
-	rm test *.gcno *.gcda *.gcov
+	rm test_client
+	rm main *.gcno *.gcda *.c.gcov
+	rm test_client *.gcno *.gcda *.c.gcov
