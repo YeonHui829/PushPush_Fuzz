@@ -50,6 +50,112 @@ char * json_serialize;
 
 int loadJson(char * filepath);
 
+#ifdef MOVE
+int main(int argc, char ** argv){
+	if(argc != 3){
+        fprintf(stderr, "argc error");
+        return 1;
+    }
+
+    if(loadJson(argv[1]) == 1){
+        fprintf(stderr, "loadJson error");
+        return 1;
+    }
+    
+    if(parseJson(json_serialize)){
+        return 1;
+    }
+
+    map = (int **) malloc (sizeof(int *) * Model.map_width);
+	for(int i=0;i<Model.map_width;i++){
+		map[i] =(int *) malloc(sizeof(int) * Model.map_height);
+	} 
+
+	FILE * fp;
+	if((fp = fopen(argv[2], "rb")) == NULL){
+		fprintf(stderr, "fopen error\n");
+		return 1;
+	}
+
+	int input[2];
+	for(int i=0; i<2; i++){
+		char buf[BUF_SIZE];
+		if(fgets(buf, BUF_SIZE, fp) == NULL){
+			fprintf(stderr, "fgets error\n");
+		}
+		input[i] = atoi(buf);
+	}
+
+	move(input[0], input[1]);
+}
+#endif
+
+#ifdef UPDATEMODEL
+int main(int argc, char ** argv){
+	if(argc != 3){
+        fprintf(stderr, "argc error");
+        return 1;
+    }
+
+    if(loadJson(argv[1]) == 1){
+        fprintf(stderr, "loadJson error");
+        return 1;
+    }
+    
+    if(parseJson(json_serialize)){
+        return 1;
+    }
+
+    map = (int **) malloc (sizeof(int *) * Model.map_width);
+	for(int i=0;i<Model.map_width;i++){
+		map[i] =(int *) malloc(sizeof(int) * Model.map_height);
+	} 
+
+	FILE * fp;
+	if((fp = fopen(argv[2], "rb")) == NULL){
+		fprintf(stderr, "fopen error\n");
+		return 1;
+	}
+
+	int input[3];
+	for(int i=0; i<3; i++){
+		char buf[BUF_SIZE];
+		if(fgets(buf, BUF_SIZE, fp) == NULL){
+			fprintf(stderr, "fgets error\n");
+		}
+		input[i] = atoi(buf);
+	}
+
+	update_model(input[0], input[1], input[2]);
+	return 0;
+}
+#endif
+
+#ifdef UPDATECELL
+int main(int argc, char ** argv){
+    if(argc != 2){
+        fprintf(stderr, "argc error");
+        return 1;
+    }
+
+    if(loadJson(argv[1]) == 1){
+        fprintf(stderr, "loadJson error");
+        return 1;
+    }
+    
+    if(parseJson(json_serialize)){
+        return 1;
+    }
+
+    map = (int **) malloc (sizeof(int *) * Model.map_width);
+	for(int i=0;i<Model.map_width;i++){
+		map[i] =(int *) malloc(sizeof(int) * Model.map_height);
+	} 
+
+    update_cell();
+}
+#endif
+
 #ifdef LOAD_JSON
 int main(int argc, char ** argv){
     if(argc != 2){

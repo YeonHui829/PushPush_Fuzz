@@ -22,6 +22,23 @@ else
 	TEST =
 endif
 
+ifdef updatecell
+	TEST=-DUPDATECELL 
+else
+	TEST=
+endif
+
+ifdef updatemodel
+	TEST=-DUPDATEMODEL
+else
+	TEST=
+endif
+
+ifdef move
+	TEST=-DMOVE
+else
+	TEST=
+endif
 
 CC = gcc
 
@@ -37,6 +54,7 @@ client_path = ./test_client.c
 # 	$(CC) $(CVG) $^ -lpthread $(LIBS) -o client
 
 clean:
-	rm test_client
-	rm main *.gcno *.gcda *.c.gcov
+	rm main
 	rm test_client *.gcno *.gcda *.c.gcov
+	rm main *.gcno *.gcda *.c.gcov
+	
