@@ -1,0 +1,14 @@
+file:testSendmsgall.c
+function:8,1,main
+lcount:8,1
+lcount:9,1
+lcount:10,1
+lcount:11,1
+lcount:12,1
+lcount:13,1
+lcount:16,1
+lcount:17,1
+lcount:19,5
+branch:19,taken
+branch:19,taken
+lcount:20,4
