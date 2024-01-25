@@ -1,0 +1,137 @@
+Function 'cannot_enter'
+Lines executed:0.00% of 3
+No branches
+Calls executed:0.00% of 1
+
+Function 'handle_cmd'
+Lines executed:0.00% of 17
+Branches executed:0.00% of 8
+Taken at least once:0.00% of 8
+Calls executed:0.00% of 9
+
+Function 'write_bytes'
+Lines executed:0.00% of 10
+Branches executed:0.00% of 4
+Taken at least once:0.00% of 4
+Calls executed:0.00% of 1
+
+Function 'read_bytes'
+Lines executed:0.00% of 10
+Branches executed:0.00% of 6
+Taken at least once:0.00% of 6
+Calls executed:0.00% of 1
+
+Function 'read_msg'
+Lines executed:0.00% of 12
+Branches executed:0.00% of 4
+Taken at least once:0.00% of 4
+Calls executed:0.00% of 6
+
+Function 'handle_timeout'
+Lines executed:0.00% of 5
+No branches
+Calls executed:0.00% of 2
+
+Function 'parseJson'
+Lines executed:96.00% of 50
+Branches executed:100.00% of 8
+Taken at least once:87.50% of 8
+Calls executed:92.31% of 26
+
+Function 'gameover'
+Lines executed:0.00% of 6
+No branches
+Calls executed:0.00% of 3
+
+Function 'score_up'
+Lines executed:0.00% of 8
+No branches
+Calls executed:0.00% of 3
+
+Function 'item_idToIdx'
+Lines executed:0.00% of 1
+No branches
+No calls
+
+Function 'item_idxToId'
+Lines executed:0.00% of 1
+No branches
+No calls
+
+Function 'update_cell'
+Lines executed:0.00% of 16
+Branches executed:0.00% of 14
+Taken at least once:0.00% of 14
+Calls executed:0.00% of 2
+
+Function 'update_model'
+Lines executed:0.00% of 17
+Branches executed:0.00% of 6
+Taken at least once:0.00% of 6
+Calls executed:0.00% of 7
+
+Function 'on_key_press'
+Lines executed:0.00% of 25
+Branches executed:0.00% of 5
+Taken at least once:0.00% of 5
+Calls executed:0.00% of 2
+
+Function 'move'
+Lines executed:0.00% of 33
+Branches executed:0.00% of 9
+Taken at least once:0.00% of 9
+Calls executed:0.00% of 7
+
+Function 'check_validation'
+Lines executed:0.00% of 51
+Branches executed:0.00% of 77
+Taken at least once:0.00% of 77
+No calls
+
+Function 'exit_game'
+Lines executed:0.00% of 3
+No branches
+Calls executed:0.00% of 1
+
+Function 'add_mat_board'
+Lines executed:0.00% of 26
+Branches executed:0.00% of 2
+Taken at least once:0.00% of 2
+Calls executed:0.00% of 32
+
+Function 'display_screen'
+Lines executed:0.00% of 22
+Branches executed:0.00% of 24
+Taken at least once:0.00% of 24
+Calls executed:0.00% of 19
+
+Function 'create_entity'
+Lines executed:0.00% of 16
+Branches executed:0.00% of 8
+Taken at least once:0.00% of 8
+Calls executed:0.00% of 7
+
+Function 'set_window'
+Lines executed:0.00% of 23
+No branches
+Calls executed:0.00% of 30
+
+Function 'load_icons'
+Lines executed:0.00% of 21
+Branches executed:0.00% of 12
+Taken at least once:0.00% of 12
+Calls executed:0.00% of 13
+
+Function 'create_pixbuf'
+Lines executed:0.00% of 7
+Branches executed:0.00% of 2
+Taken at least once:0.00% of 2
+Calls executed:0.00% of 3
+
+File 'test_client.c'
+Lines executed:12.53% of 383
+Branches executed:4.23% of 189
+Taken at least once:3.70% of 189
+Calls executed:13.71% of 175
+Creating 'test_client.c.gcov'
+

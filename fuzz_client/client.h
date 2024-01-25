@@ -1,15 +1,5 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <gtk/gtk.h>
-#include <unistd.h> 
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <pthread.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include "../cJSON.h"
+#ifndef CLIENT_H
+#define CLIENT_H
 
 #define NAME_SIZE 16
 #define queue_size 20
@@ -18,6 +8,7 @@
 #define GDK_KEY_DOWN 65364
 #define GDK_KEY_LEFT 65361
 #define GDK_KEY_RIGHT 65363
+#include <gtk/gtk.h>
 
 //object data structures
 typedef struct location{
@@ -57,34 +48,6 @@ enum spans {
 	RIGHT
 };
 
-char user_color[8][20] = {"#faa8a1", "#ffe479", "#dbe87c", "#a19b8b", "#ea9574", "#ffca79", "#c79465", "#e3dbcf"};
-
-int ** map; // cell
-object_data_t Model; //model
-char msg_info[BUF_SIZE] = "";
-char buf[BUF_SIZE] = "";
-int sock;
-int my_id;
-int num_item, num_block;
-int current_num_item;
-
-pthread_mutex_t mutx;
-pthread_cond_t cond;
-int event_arry[queue_size];
-int rear = 0;
-int front = 0;
-
-
-//GUI functions
-GtkWidget *window;
-GtkWidget *mat_main, *mat_changed_screen, *mat_board, *label_info, *label_me, *mat_fixed_screen, *mat_screen;
-GtkWidget *mat_ans_btn, *mat_sol_btn;
-GtkWidget *btn_solve, *btn_exit, *btn_next, *btn_prev;
-GtkWidget *btn_auto, *btn_up, *btn_down, *btn_left, *btn_right;
-GtkWidget *label_name;
-GtkWidget ** label_score; 
-GdkPixbuf *icon, *icon_block[2], *icon_fruit[11];
-GdkPixbuf ** icon_player;
 GdkPixbuf *create_pixbuf(const gchar * filename);
 GtkWidget* create_entity(int id);
 int load_icons();
@@ -113,3 +76,5 @@ void handle_timeout(int signum);
 int parseJson(char * jsonfile);
 void *read_msg(void * arg);
 void cannot_enter();
+
+#endif
