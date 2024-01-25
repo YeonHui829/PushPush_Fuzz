@@ -40,6 +40,12 @@ else
 	TEST=
 endif
 
+ifdef move
+	TEST=-DCHECK_VALIDATION 
+else
+	TEST=
+endif
+
 CC = gcc
 
 LIBS = `pkg-config --libs --cflags gtk+-2.0`

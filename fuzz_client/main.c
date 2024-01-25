@@ -50,6 +50,47 @@ char * json_serialize;
 
 int loadJson(char * filepath);
 
+#ifdef CHECK_VALIDATION 
+int main(int argc, char ** argv){
+	if(argc != 3){
+        fprintf(stderr, "argc error");
+        return 1;
+    }
+
+    if(loadJson(argv[1]) == 1){
+        fprintf(stderr, "loadJson error");
+        return 1;
+    }
+    
+    if(parseJson(json_serialize)){
+        return 1;
+    }
+
+    map = (int **) malloc (sizeof(int *) * Model.map_width);
+	for(int i=0;i<Model.map_width;i++){
+		map[i] =(int *) malloc(sizeof(int) * Model.map_height);
+	} 
+
+    update_cell();
+
+	FILE * fp;
+	if((fp = fopen(argv[2], "rb")) == NULL){
+		fprintf(stderr, "fopen error\n");
+		return 1;
+	}
+
+	int input[1];
+	for(int i=0; i<1; i++){
+		char buf[BUF_SIZE];
+		if(fgets(buf, BUF_SIZE, fp) == NULL){
+			fprintf(stderr, "fgets error\n");
+		}
+		input[i] = atoi(buf);
+	}
+
+}
+
+#endif 
 #ifdef MOVE
 int main(int argc, char ** argv){
 	if(argc != 3){

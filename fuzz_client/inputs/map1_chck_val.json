@@ -1,0 +1,45 @@
+{
+
+"timeout" : 30,
+"max_user" : 2,
+"map": {
+	"map_width" : 10,
+	"map_height" : 10
+},
+
+"user": 
+[
+{
+"username" : "",
+"score" : 0,
+"base": [8, 8],
+"location" : [8, 8]
+},
+{
+"username" : "",
+"score" : 0,
+"base" : [0,0],
+"location" : [4,5]
+}
+],
+
+"item_location" : 
+[
+[4, 4],
+[3, 5],
+[5, 5],
+[4, 6],
+[6, 1],
+[8, 1]
+],
+
+"block_location" : 
+[
+[4, 3],
+[2, 5],
+[8, 8],
+[6, 5],
+[4, 7]
+]
+
+}

@@ -355,7 +355,7 @@ void exit_game(GtkWidget* widget){
 
 
 int check_validation(int cmd){
-	int user_idx = cmd/4;
+	int user_idx = cmd/Model.max_user;
 	int span = cmd%4;	
 	
 	int curr_x, curr_y, target_x, target_y, item_target_x, item_target_y;
