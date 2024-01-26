@@ -40,8 +40,14 @@ else
 	TEST=
 endif
 
-ifdef move
+ifdef checkvalidation
 	TEST=-DCHECK_VALIDATION 
+else
+	TEST=
+endif
+
+ifdef handlecmd
+	TEST=-DHANDLE_CMD
 else
 	TEST=
 endif

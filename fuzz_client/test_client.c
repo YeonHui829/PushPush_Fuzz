@@ -736,11 +736,12 @@ gboolean handle_cmd(gpointer user_data) {
 	int movement;
 	if((movement = check_validation(event)) == 0) fprintf(stderr,"invalid movement!\n");
 	else{	
-		move(event, movement);
-		display_screen();
-		if( current_num_item <= 0) {
-			gameover();
-		}
+		printf("valid movement!\n");
+		// move(event, movement);
+		// display_screen();
+		// if( current_num_item <= 0) {
+		// 	gameover();
+		// }
 	} 
 
     return TRUE;

@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 extern char user_color[8][20];
 
@@ -230,6 +231,26 @@ int main(int argc, char ** argv){
 }
 
 #endif
+
+#ifdef HANDLE_CMD
+	int main(int argc, char *argv[]){
+		pthread_t rcv_thread;
+		loadJson("./map1.json");
+		parseJson(json_serialize);
+
+		int fd = open("cmd_sequence",O_CREAT|O_RDWR|O_TRUNC,0644);
+		int cmd = 5;
+		dprintf(fd,"%d",cmd);
+
+		pthread_create(&rcv_thread, NULL, read_msg, &fd);
+
+		while(1){
+			sleep(1);
+			handle_cmd(NULL);
+		}
+	}
+#endif
+
 
 int loadJson(char * filepath) 
 {

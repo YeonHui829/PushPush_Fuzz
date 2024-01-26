@@ -1,27 +1,41 @@
 ifdef coverage
 	CVG = -O0 -fprofile-arcs -ftest-coverage
-else
-	CVG = 
 endif
 
 ifdef thread
 	THD = -lpthread
-else
-	THD = 
 endif
 
-ifdef test
+ifdef main
 	TT = -DMAIN
-else
-	TT = 
+endif
+
+ifdef disconnected
+	TT = -Ddisconnected
+endif
+
+ifdef handleclnt
+	TT = -Dhandleclnt
+endif
+
+ifdef loadjson
+	TT = -Dloadjson
+endif
+
+ifdef readbyte
+	TT = -Dreadbyte
+endif
+
+ifdef sendmsgall
+	TT = -Dsendmsgall
 endif
 
 CC = gcc
 
 LIBS = `pkg-config --libs --cflags gtk+-2.0`
 
-%:%.c ../../cJSON.c ../server.c
-	$(CC) $(CVG) -o test $^ $(THD) $(TT) $(LIBS)
+%:%.c ../cJSON.c ./server.c
+	$(CC) $(CVG) -o $@ $^ $(THD) $(TT) $(LIBS)
 
 clean:
-	rm test *.gcno *.gcda *.gcov
+	rm test testServer result *.gcno *.gcda *.gcov
