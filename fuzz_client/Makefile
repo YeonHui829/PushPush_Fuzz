@@ -46,7 +46,7 @@ else
 	TEST=
 endif
 
-ifdef handlecmd
+ifdef handle_cmd
 	TEST=-DHANDLE_CMD
 else
 	TEST=
