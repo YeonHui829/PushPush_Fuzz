@@ -1,0 +1,10 @@
+Function 'check_validation'
+Lines executed:82.35% of 51
+Branches executed:100.00% of 77
+Taken at least once:61.04% of 77
+No calls
+
+Function 'exit_game'
+Lines executed:0.00% of 3
+No branches
+Calls executed:0.00% of 1

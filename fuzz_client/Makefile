@@ -40,7 +40,7 @@ else
 	TEST=
 endif
 
-ifdef move
+ifdef check_validation
 	TEST=-DCHECK_VALIDATION 
 else
 	TEST=
