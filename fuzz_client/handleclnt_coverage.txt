@@ -1,5 +1,0 @@
-Function 'handle_cmd'
-Lines executed:87.50% of 16
-Branches executed:100.00% of 8
-Taken at least once:75.00% of 8
-Calls executed:87.50% of 8

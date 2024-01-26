@@ -1,5 +1,0 @@
-Function 'read_msg'
-Lines executed:92.31% of 13
-Branches executed:100.00% of 4
-Taken at least once:75.00% of 4
-Calls executed:85.71% of 7
