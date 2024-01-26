@@ -67,6 +67,7 @@ int main(int argc, char ** argv){
     if(parseJson(json_serialize)){
         return 1;
     }
+	fprintf(stderr, "user2 x : %d, y : %d\n", Model.users[1].user_loc.x,Model.users[1].user_loc.y );
 
     map = (int **) malloc (sizeof(int *) * Model.map_width);
 	for(int i=0;i<Model.map_width;i++){
@@ -75,21 +76,35 @@ int main(int argc, char ** argv){
 
     update_cell();
 
+
+	for (int i = 0; i < Model.map_width; i++) {
+      for (int j = 0; j < Model.map_height; j++) {
+		fprintf(stderr,"%3d ",map[i][j]);
+	  }
+	  fprintf(stderr,"\n");
+    }
+
 	FILE * fp;
 	if((fp = fopen(argv[2], "rb")) == NULL){
 		fprintf(stderr, "fopen error\n");
 		return 1;
 	}
 
-	int input[1];
-	for(int i=0; i<1; i++){
-		char buf[BUF_SIZE];
-		if(fgets(buf, BUF_SIZE, fp) == NULL){
-			fprintf(stderr, "fgets error\n");
+	int event;
+	char buf[BUF_SIZE];
+	while (fgets(buf, sizeof(buf), fp) != NULL) {
+		if(sscanf(buf, "%d", &event) == 0) {
+			perror("sscanf");
+			return 1;
+		}		
+		if(event <0 || event > (Model.max_user * 4)){
+			fprintf(stderr, "Wrong input");
 		}
-		input[i] = atoi(buf);
+		int movement = check_validation(event);
+		move(event, movement);
 	}
-
+	
+	// int result = check_validation(input[0]);
 }
 
 #endif 
@@ -125,6 +140,10 @@ int main(int argc, char ** argv){
 		char buf[BUF_SIZE];
 		if(fgets(buf, BUF_SIZE, fp) == NULL){
 			fprintf(stderr, "fgets error\n");
+		}
+		if(sscnaf(buf, "%d", &input[i]) == 0){
+			fprintf(stderr, "ssncanf error\n");
+			return 1;
 		}
 		input[i] = atoi(buf);
 	}
@@ -165,6 +184,10 @@ int main(int argc, char ** argv){
 		char buf[BUF_SIZE];
 		if(fgets(buf, BUF_SIZE, fp) == NULL){
 			fprintf(stderr, "fgets error\n");
+		}
+		if(sscnaf(buf, "%d", input[i]) == 0){
+			fprintf(stderr, "sscanf error\n", &input[i]);
+			return 1;
 		}
 		input[i] = atoi(buf);
 	}

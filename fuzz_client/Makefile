@@ -40,7 +40,7 @@ else
 	TEST=
 endif
 
-ifdef checkvalidation
+ifdef check_validation
 	TEST=-DCHECK_VALIDATION 
 else
 	TEST=
