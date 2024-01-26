@@ -46,6 +46,12 @@ else
 	TEST=
 endif
 
+ifdef handlecmd
+	TEST=-DHANDLE_CMD
+else
+	TEST=
+endif
+
 CC = gcc
 
 LIBS = `pkg-config --libs --cflags gtk+-2.0`
