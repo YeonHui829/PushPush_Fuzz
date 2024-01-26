@@ -355,14 +355,14 @@ void exit_game(GtkWidget* widget){
 
 
 int check_validation(int cmd){
-	int user_idx = cmd/Model.max_user;
+	int user_idx = cmd/4;
 	int span = cmd%4;	
 	
 	int curr_x, curr_y, target_x, target_y, item_target_x, item_target_y;
 	curr_x = target_x = item_target_x = Model.users[user_idx].user_loc.x;
 	curr_y = target_y = item_target_y = Model.users[user_idx].user_loc.y;
 	switch(span){
-		case UP:		
+		case UP:
 			if((target_y = (curr_y - 1)) < 0) return 0;//out of array
 			else if(map[target_y][target_x] == EMPTY) return 1; //empty
 			else if(map[target_y][target_x] > BASE) return 1; //base
@@ -529,8 +529,11 @@ void update_cell(){
 	//base and user
 	for(int i = 0; i < Model.max_user; i++){
 		int id = i+1;
+		printf("here1 %d %d\n",Model.users[i].user_loc.y,Model.users[i].user_loc.x);
 		map[Model.users[i].user_loc.y][Model.users[i].user_loc.x] = id;
+		printf("here2\n");
 		map[Model.users[i].base_loc.y][Model.users[i].base_loc.x] = id*10;
+		printf("here3\n");
 
 		fprintf(stderr,"user %d  x : %d, y : %d, base %d, %d\n",i, Model.users[i].user_loc.x,Model.users[i].user_loc.y, Model.users[i].base_loc.x,Model.users[i].base_loc.y);
 	}
@@ -663,17 +666,21 @@ void * read_msg(void * arg)   // read thread main
 
 	//now enter new move 
 	while(1){
-		if(read_bytes(sock, (void *)&read_cmd, sizeof(read_cmd)) == -1)
+		if(read_bytes(sock, (void *)&read_cmd, sizeof(read_cmd)) == -1){
+			printf("check\n");
 			return (void*)-1;
+		}
 
         fprintf(stderr, "From Server : %d\n", read_cmd);
 
 		pthread_mutex_lock(&mutx);
+		// printf("read_msg_enter\n");
 		while((rear+1)%queue_size == front)
 			pthread_cond_wait(&cond, &mutx);
 		rear = (rear + 1) % queue_size;
 		event_arry[rear] = read_cmd;
 		pthread_cond_signal(&cond);
+		// printf("read_msg_exit\n");
   		pthread_mutex_unlock(&mutx);
 	}
 	return NULL;
@@ -721,7 +728,6 @@ gboolean handle_cmd(gpointer user_data) {
 		pthread_mutex_unlock(&mutx);
 		return TRUE;
 	}
-
 	front = (front + 1) % queue_size;
 	event = event_arry[front];
 	
@@ -736,12 +742,11 @@ gboolean handle_cmd(gpointer user_data) {
 	int movement;
 	if((movement = check_validation(event)) == 0) fprintf(stderr,"invalid movement!\n");
 	else{	
-		printf("valid movement!\n");
-		// move(event, movement);
+		move(event, movement);
 		// display_screen();
-		// if( current_num_item <= 0) {
-		// 	gameover();
-		// }
+		if( current_num_item <= 0) {
+			gameover();
+		}
 	} 
 
     return TRUE;

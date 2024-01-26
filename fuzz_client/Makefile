@@ -66,7 +66,7 @@ client_path = ./test_client.c
 # 	$(CC) $(CVG) $^ -lpthread $(LIBS) -o client
 
 clean:
+	rm main *.gcno *.gcda *.c.gcov
 	rm main
 	rm test_client *.gcno *.gcda *.c.gcov
-	rm main *.gcno *.gcda *.c.gcov
 	

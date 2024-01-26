@@ -173,7 +173,7 @@ void *handle_clnt(void * arg)
 
 	//recive name size
 	str_len = read_byte(clnt_sock, (void *)&name_size, sizeof(int));
-	printf("check: %d\n",str_len);
+
 	//reciev name, send id
 	pthread_mutex_lock(&mutx);
 	for (int i = 0; i < clnt_cnt; i++) 

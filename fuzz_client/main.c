@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 extern char user_color[8][20];
 
@@ -233,18 +234,49 @@ int main(int argc, char ** argv){
 #endif
 
 #ifdef HANDLE_CMD
+	void signal_handler(int sig){
+		if(sig==SIGALRM){
+			handle_cmd(NULL);
+		}
+		alarm(0.1);
+	}
+
 	int main(int argc, char *argv[]){
 		pthread_t rcv_thread;
 		loadJson("./map1.json");
 		parseJson(json_serialize);
 
-		int fd = open("cmd_sequence",O_CREAT|O_RDWR|O_TRUNC,0644);
-		int cmd = 5;
-		dprintf(fd,"%d",cmd);
+		map = (int **) malloc (sizeof(int *) * Model.map_width);
+		for(int i=0;i<Model.map_width;i++){
+			map[i] =(int *) malloc(sizeof(int) * Model.map_height);
+		} 
+		update_cell();
+		int cmd[10];
+
+		FILE *fp = fopen(argv[1],"rb");
+		int count=0;
+		char num[10];
+		while(fgets(num,10,fp)){
+			cmd[count] = atoi(num);
+			count++;
+			if(count==10) break;
+		}
+		fclose(fp);
+
+		int fd = open("temp",O_CREAT|O_WRONLY|O_TRUNC,0644);
+		
+		for(int i=0;i<count;i++){
+			write_bytes(fd,(void*)&cmd[i],sizeof(int));
+		}
+		close(fd);
+
+		fd = open("temp",O_RDONLY);
 
 		pthread_create(&rcv_thread, NULL, read_msg, &fd);
 
-		while(1){
+		// signal(SIGALRM,signal_handler);
+		// alarm(0.1);
+		for(int i=0;i<10;i++){
 			sleep(1);
 			handle_cmd(NULL);
 		}
