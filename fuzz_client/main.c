@@ -140,6 +140,10 @@ int main(int argc, char ** argv){
 		if(fgets(buf, BUF_SIZE, fp) == NULL){
 			fprintf(stderr, "fgets error\n");
 		}
+		if(sscnaf(buf, "%d", &input[i]) == 0){
+			fprintf(stderr, "ssncanf error\n");
+			return 1;
+		}
 		input[i] = atoi(buf);
 	}
 
@@ -179,6 +183,10 @@ int main(int argc, char ** argv){
 		char buf[BUF_SIZE];
 		if(fgets(buf, BUF_SIZE, fp) == NULL){
 			fprintf(stderr, "fgets error\n");
+		}
+		if(sscnaf(buf, "%d", input[i]) == 0){
+			fprintf(stderr, "sscanf error\n", &input[i]);
+			return 1;
 		}
 		input[i] = atoi(buf);
 	}
